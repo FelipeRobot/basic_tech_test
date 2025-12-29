@@ -1,50 +1,55 @@
-# 🚗 Asistente – Gestión de Parqueadero (Prueba Técnica)
+🚗 Asistente – Gestión de Parqueadero (Prueba Técnica)
 
-API REST desarrollada en **Java 21 + Spring Boot** para la gestión de ingresos y salidas de vehículos en un parqueadero.
+API REST desarrollada en Java 21 + Spring Boot para la gestión de ingresos y salidas de vehículos en un parqueadero.
 
 El sistema permite:
-- Registrar usuarios y vehículos
-- Registrar ingreso y salida de vehículos
-- Consultar estancias activas
-- Calcular tiempo y valor de la estancia
-- Persistir eventos usando el patrón **Outbox**
 
----
+Registrar usuarios y vehículos
 
-## 🧱 Tecnologías utilizadas
+Registrar ingreso y salida de vehículos
 
-- Java 21
-- Spring Boot 3.2.x
-- Spring Data JPA
-- H2 Database (en memoria)
-- Hibernate
-- Lombok
-- Maven
+Consultar estancias activas
 
----
+Calcular tiempo y valor de la estancia
 
-## 🗂️ Estructura del proyecto
+Manejar concurrencia de forma segura
 
+Persistir eventos usando el patrón Outbox
+
+🧱 Tecnologías utilizadas
+
+Java 21
+
+Spring Boot 3.2.x
+
+Spring Data JPA
+
+Hibernate
+
+H2 Database (en memoria)
+
+Lombok
+
+Maven
+
+JUnit 5
+
+🗂️ Estructura del proyecto
 src/main/java/com/zybo/asistente
-├── controller # Controladores REST
+├── controller   # Controladores REST
 ├── domain
-│ ├── entity # Entidades JPA
-│ └── enums # Enumeraciones de dominio
-├── dto # DTOs de salida
-├── exception # Manejo de errores (extensible)
-├── repository # Repositorios JPA
-└── service # Lógica de negocio
+│   ├── entity   # Entidades JPA
+│   └── enums    # Enumeraciones de dominio
+├── dto          # DTOs de request y response
+├── exception    # Manejo centralizado de errores
+├── repository   # Repositorios JPA
+└── service      # Lógica de negocio
 
+⚙️ Configuración
 
----
+La aplicación usa H2 en memoria, no requiere configuración externa.
 
-## ⚙️ Configuración
-
-La aplicación usa **H2 en memoria**, no requiere configuración externa.
-
-### `application.properties`
-
-```properties
+application.properties
 spring.application.name=asistente
 
 # H2
@@ -63,8 +68,8 @@ spring.h2.console.enabled=true
 spring.h2.console.path=/h2-console
 
 ▶️ Ejecución del proyecto
-
 ./mvnw spring-boot:run
+
 
 La aplicación inicia en:
 
@@ -72,6 +77,7 @@ http://localhost:8080
 
 🧪 Consola H2
 http://localhost:8080/h2-console
+
 
 Parámetros:
 
@@ -85,8 +91,11 @@ Password: (vacío)
 👤 Usuarios
 
 Crear usuario
-Body (JSON):
+
 POST /api/usuarios
+
+
+Body (JSON):
 
 {
   "documento": "123456789",
@@ -94,10 +103,17 @@ POST /api/usuarios
   "telefono": "3001234567"
 }
 
+
+Consultar usuario
+
+GET /api/usuarios/{id}
+
 🚘 Vehículos
+
 Registrar vehículo
 
 POST /api/vehiculos?placa=ABC123&usuarioId=1
+
 
 Buscar por placa
 
@@ -109,16 +125,17 @@ Ingreso de vehículo
 
 POST /api/estancias/ingreso?placa=ABC123
 
+
 Salida de vehículo
 
 POST /api/estancias/salida?placa=ABC123
+
 
 Consultar estancia activa
 
 GET /api/estancias/activa/{placa}
 
 📦 Respuesta de Estancia (DTO)
-
 {
   "id": 1,
   "placa": "ABC123",
@@ -129,109 +146,62 @@ GET /api/estancias/activa/{placa}
   "estado": "CERRADA"
 }
 
-
-
---------------------------------------------------
-
-
 🧠 Decisiones de diseño
 
-DTOs para evitar exposición de entidades JPA
+Uso de DTOs para evitar exponer entidades JPA
 
-Lazy Loading controlado (sin errores de serialización)
+Lazy Loading controlado, sin errores de serialización
 
-Optimistic Locking en estancias para evitar concurrencia
+Optimistic Locking (@Version) para evitar doble ingreso/salida
 
-Patrón Outbox para registrar eventos de dominio
+Prueba automatizada de concurrencia validando el comportamiento bajo carga
+
+Implementación del patrón Outbox para eventos de dominio
 
 Transacciones declarativas con @Transactional
 
 Arquitectura por capas clara y mantenible
 
+🧪 Testing
 
+Tests automáticos con JUnit 5
+
+Prueba de concurrencia que valida que:
+
+No se permiten dos ingresos concurrentes para el mismo vehículo
+
+Se mantiene la consistencia del estado de la estancia
+
+Contexto Spring cargado correctamente en pruebas
+
+Para ejecutar pruebas:
+
+./mvnw test
 
 🚀 Posibles mejoras
 
-Manejo global de errores con @ControllerAdvice
+Procesador asíncrono de eventos Outbox (Kafka / RabbitMQ)
 
 Tests de integración con MockMvc
 
-Persistencia en base de datos real (PostgreSQL/MySQL)
+Persistencia en base de datos real (PostgreSQL / MySQL)
 
-Procesador asíncrono de eventos Outbox
+Autenticación y autorización (JWT / OAuth2)
 
-Autenticación y autorización
-
-
+CRUD completo con paginación
 
 ⏱️ Alcances y decisiones por tiempo
 
-Debido a la restricción de tiempo de la prueba técnica, el proyecto prioriza la correcta modelación del dominio, la consistencia transaccional y el manejo de concurrencia, dejando algunos aspectos planificados pero no implementados completamente. A continuación se detallan:
-
-🚧 Funcionalidades parcialmente implementadas
-
-CRUD completo de Usuarios y Vehículos
-
-Se implementaron los endpoints principales (POST, GET)
-
-PUT y DELETE quedaron fuera por priorización de lógica de negocio crítica (estancias y concurrencia)
-
-Endpoint de dispatch de eventos (Outbox)
-
-El patrón Outbox está implementado a nivel de persistencia
-
-Falta el endpoint /eventos/dispatch para marcar eventos como ENVIADO
-
-Validaciones con @Valid
-
-No se implementaron DTOs de request con anotaciones de validación (@NotNull, @NotBlank, etc.)
-
-El diseño está preparado para incorporarlos fácilmente
-
-Manejo centralizado de errores
-
-No se incluyó un @ControllerAdvice global
-
-Las excepciones se manejan actualmente mediante RuntimeException para simplicidad
-
-🧪 Testing
-
-No se incluyó una prueba automatizada de concurrencia
-
-Sin embargo, el sistema está diseñado con:
-
-Transacciones
-
-Bloqueo optimista (@Version)
-
-Validaciones de estado
-
-Esto permite soportar correctamente escenarios concurrentes de ingreso/salida
-
-🔁 Uso de DTOs
-
-Se creó el DTO EstanciaResponse para evitar exponer entidades JPA
-
-Por limitaciones de tiempo, algunos endpoints aún retornan entidades directamente
-
-El mapeo a DTO ya está implementado en el service y listo para ser aplicado en los controllers
-
-🛢️ Base de datos
-
-Se utilizó H2 en memoria para facilitar la ejecución y pruebas locales
-
-El diseño es totalmente compatible con MySQL, cumpliendo el requisito del enunciado
-
-🧠 Decisiones de diseño priorizadas
-
-Durante la prueba se priorizó:
+Debido a la restricción de tiempo de la prueba técnica, se priorizó:
 
 Correcta modelación del dominio
 
-Consistencia de datos
+Consistencia transaccional
 
-Manejo de concurrencia
+Manejo explícito de concurrencia
 
-Patrones de arquitectura (Service Layer, Repository, Outbox)
+Uso de patrones de arquitectura
 
-Código claro y mantenible
+Código limpio, legible y mantenible
+
+Algunas mejoras quedan planificadas para una siguiente iteración, sin afectar el cumplimiento de los requisitos funcionales y técnicos del enunciado.
