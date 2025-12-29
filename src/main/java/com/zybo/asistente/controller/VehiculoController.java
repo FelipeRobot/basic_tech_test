@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zybo.asistente.domain.entity.Vehiculo;
+import com.zybo.asistente.dto.VehiculoResponse;
 import com.zybo.asistente.service.VehiculoService;
 
 import lombok.RequiredArgsConstructor;
@@ -22,14 +23,18 @@ public class VehiculoController {
     private final VehiculoService vehiculoService;
 
     @PostMapping
-    public ResponseEntity<Vehiculo> registrar(@RequestParam String placa,
-                                               @RequestParam Long usuarioId) {
-        Vehiculo vehiculo = vehiculoService.registrarVehiculo(placa, usuarioId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(vehiculo);
+    public ResponseEntity<VehiculoResponse> registrar(
+            @RequestParam String placa,
+            @RequestParam Long usuarioId) {
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(vehiculoService.registrarVehiculo(placa, usuarioId));
     }
 
     @GetMapping("/{placa}")
-    public ResponseEntity<Vehiculo> buscarPorPlaca(@PathVariable String placa) {
+    public ResponseEntity<VehiculoResponse> buscarPorPlaca(
+            @PathVariable String placa) {
+
         return ResponseEntity.ok(
                 vehiculoService.buscarPorPlaca(placa)
         );

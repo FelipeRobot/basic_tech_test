@@ -11,4 +11,6 @@ public interface EstanciaRepository extends JpaRepository<Estancia, Long> {
     Optional<Estancia> findByVehiculoIdAndEstado(Long vehiculoId, EstadoEstancia estado);
 
     boolean existsByVehiculoIdAndEstado(Long vehiculoId, EstadoEstancia estado);
+
+    long countByVehiculoIdAndEstado(Long vehiculoId, EstadoEstancia estado);
 }

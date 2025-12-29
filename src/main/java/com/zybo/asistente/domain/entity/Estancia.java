@@ -9,6 +9,12 @@ import java.time.LocalDateTime;
 @Entity
 @Table(
     name = "estancias",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "uk_estancia_vehiculo_activa",
+            columnNames = {"vehiculo_id", "estado"}
+        )
+    },
     indexes = {
         @Index(name = "idx_estancia_vehiculo_estado", columnList = "vehiculo_id, estado")
     }

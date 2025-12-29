@@ -3,15 +3,14 @@ package com.zybo.asistente.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VehiculoResponse {
+public class UsuarioResponse {
 
     private Long id;
-    private String placa;
-    private Long usuarioId;
+    private String nombres;
+    private String documento;
+    private String telefono;
 }
