@@ -3,12 +3,12 @@ package com.zybo.asistente.service;
 import com.zybo.asistente.domain.entity.Usuario;
 import com.zybo.asistente.domain.entity.Vehiculo;
 import com.zybo.asistente.dto.VehiculoResponse;
+import com.zybo.asistente.exception.NotFoundException;
 import com.zybo.asistente.repository.UsuarioRepository;
 import com.zybo.asistente.repository.VehiculoRepository;
-
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +21,9 @@ public class VehiculoService {
     public VehiculoResponse registrarVehiculo(String placa, Long usuarioId) {
 
         Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() ->
+                        new NotFoundException("Usuario no encontrado con id " + usuarioId)
+                );
 
         Vehiculo vehiculo = Vehiculo.builder()
                 .placa(placa)
@@ -37,7 +39,9 @@ public class VehiculoService {
     public VehiculoResponse buscarPorPlaca(String placa) {
 
         Vehiculo vehiculo = vehiculoRepository.findByPlaca(placa)
-                .orElseThrow(() -> new RuntimeException("Vehículo no encontrado"));
+                .orElseThrow(() ->
+                        new NotFoundException("Vehículo no encontrado con placa " + placa)
+                );
 
         return mapToResponse(vehiculo);
     }
@@ -50,4 +54,3 @@ public class VehiculoService {
                 .build();
     }
 }
-

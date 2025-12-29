@@ -7,6 +7,8 @@ import com.zybo.asistente.domain.enums.EstadoEstancia;
 import com.zybo.asistente.domain.enums.EstadoEvento;
 import com.zybo.asistente.domain.enums.TipoEvento;
 import com.zybo.asistente.dto.EstanciaResponse;
+import com.zybo.asistente.exception.BusinessException;
+import com.zybo.asistente.exception.NotFoundException;
 import com.zybo.asistente.repository.EstanciaRepository;
 import com.zybo.asistente.repository.EventoOutboxRepository;
 import com.zybo.asistente.repository.VehiculoRepository;
@@ -29,11 +31,13 @@ public class EstanciaService {
     public EstanciaResponse registrarIngreso(String placa) {
 
         Vehiculo vehiculo = vehiculoRepository.findByPlaca(placa)
-                .orElseThrow(() -> new RuntimeException("Vehículo no encontrado"));
+                .orElseThrow(() ->
+                        new NotFoundException("Vehículo no encontrado con placa " + placa)
+                );
 
         if (estanciaRepository.existsByVehiculoIdAndEstado(
                 vehiculo.getId(), EstadoEstancia.ACTIVA)) {
-            throw new RuntimeException("El vehículo ya tiene una estancia activa");
+            throw new BusinessException("El vehículo ya tiene una estancia activa");
         }
 
         Estancia estancia = Estancia.builder()
@@ -56,11 +60,15 @@ public class EstanciaService {
     public EstanciaResponse registrarSalida(String placa) {
 
         Vehiculo vehiculo = vehiculoRepository.findByPlaca(placa)
-                .orElseThrow(() -> new RuntimeException("Vehículo no encontrado"));
+                .orElseThrow(() ->
+                        new NotFoundException("Vehículo no encontrado con placa " + placa)
+                );
 
         Estancia estancia = estanciaRepository
                 .findByVehiculoIdAndEstado(vehiculo.getId(), EstadoEstancia.ACTIVA)
-                .orElseThrow(() -> new RuntimeException("No existe estancia activa"));
+                .orElseThrow(() ->
+                        new BusinessException("No existe estancia activa para el vehículo")
+                );
 
         LocalDateTime salida = LocalDateTime.now();
 
@@ -89,16 +97,20 @@ public class EstanciaService {
     public EstanciaResponse obtenerEstanciaActiva(String placa) {
 
         Vehiculo vehiculo = vehiculoRepository.findByPlaca(placa)
-                .orElseThrow(() -> new RuntimeException("Vehículo no encontrado"));
+                .orElseThrow(() ->
+                        new NotFoundException("Vehículo no encontrado con placa " + placa)
+                );
 
         Estancia estancia = estanciaRepository
                 .findByVehiculoIdAndEstado(vehiculo.getId(), EstadoEstancia.ACTIVA)
-                .orElseThrow(() -> new RuntimeException("No hay estancia activa"));
+                .orElseThrow(() ->
+                        new BusinessException("No hay estancia activa para el vehículo")
+                );
 
         return mapToResponse(estancia);
     }
 
-    // ---------------- helpers ----------------
+    // ---------- helpers ----------
 
     private void registrarEvento(TipoEvento tipo, String payload) {
         EventoOutbox evento = EventoOutbox.builder()

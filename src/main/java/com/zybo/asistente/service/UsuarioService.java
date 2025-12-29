@@ -3,6 +3,7 @@ package com.zybo.asistente.service;
 import com.zybo.asistente.domain.entity.Usuario;
 import com.zybo.asistente.dto.UsuarioRequest;
 import com.zybo.asistente.dto.UsuarioResponse;
+import com.zybo.asistente.exception.NotFoundException;
 import com.zybo.asistente.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,12 +33,13 @@ public class UsuarioService {
     public UsuarioResponse buscarPorId(Long id) {
 
         Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() ->
+                        new NotFoundException("Usuario no encontrado con id " + id)
+                );
 
         return mapToResponse(usuario);
     }
 
-    // -------- mapper --------
     private UsuarioResponse mapToResponse(Usuario usuario) {
         return UsuarioResponse.builder()
                 .id(usuario.getId())
